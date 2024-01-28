@@ -1,3 +1,15 @@
+// HTML DOM object traversing: DFS
+
+/*
+parseTag가 DFS 방식을 적용한 것
+<가 발견되면 새 태그가 시작됨(=트리에서 새 브랜치가 발견)
+새 태그 처리 위해 스스로 호출(parseTag)
+-> 백트래킹하기 전, 중첩 태그까지 들어가는 DFS 방식
+
+parseTag 외부 나머지는 단순히 문자열을 반복하고 태그가 발견될 때마다 parseTag를 사용. 
+이는 HTML 문자열의 각 root-level 태그에 대해 새로운 traverse를 시작하는 것.
+*/
+
 const str = "front<p>blahblah</p><p>something<u>here</u>hello</p>back";
 /*
 INPUT: html string
@@ -77,4 +89,4 @@ function htmlToJson(str) {
   return JSON.stringify(result);
 }
 
-console.log(htmlToJson(str));
+// console.log(htmlToJson(str));

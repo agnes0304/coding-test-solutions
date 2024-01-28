@@ -150,8 +150,7 @@ function htmlToJson02(str) {
       arr.push(obj);
     }
   }
-  // ["front",{"p":"blahblah"},{"p":["something",{"u":["here"]},"hello"]},"back"]
-  // 안에 꺼 못 뺐음
+  // ["front",{"p":"blahblah"},{"p":["something",{"u":["here"]},"hello"]},"back"] -> arr를 인자로 넘겨주지 않으면 안에 걸 못 뺐음
 
   while (idx < str.length) {
     if (str[idx] === "<") {

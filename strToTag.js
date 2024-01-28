@@ -19,7 +19,7 @@ OUTPUT: json object
 sample: ["front",{"p":"blahblah"},{"p":["something",{"u":"here"},"hello"]},"back"]
 */
 
-// 중첩된 거 풀려면 재귀 필요.
+// 중첩된 거 풀려면 재귀 필요 -> 근데 스택 오버플로 가능성
 // []에 담겨야 함.
 // <로 시작하는 문자열 처리하는 케이스
 // base: < 로 시작하지 않을 경우
@@ -31,12 +31,12 @@ function htmlToJson(str) {
   let idx = 0;
 
   // indexOf 대체해봄.
-  function findCharIndex(char, startIndex){
-    for(let i = startIndex; i<str.length; i++){
-      if(str[i] === char){
-        return i
+  function findCharIndex(char, startIndex) {
+    for (let i = startIndex; i < str.length; i++) {
+      if (str[i] === char) {
+        return i;
       }
-      return -1
+      return -1;
     }
   }
 
@@ -99,4 +99,28 @@ function htmlToJson(str) {
   return JSON.stringify(result);
 }
 
-console.log(htmlToJson(str));
+// console.log(htmlToJson(str));
+
+// using stack
+const sample = "front<p>blahblah</p><p>something<u>here</u>hello</p>back";
+/*
+INPUT: html string
+sample: "front<p>blahblah</p><p>something<u>here</u>hello</p>back"
+
+OUTPUT: json object
+sample: ["front",{"p":"blahblah"},{"p":["something",{"u":"here"},"hello"]},"back"]
+*/
+
+// 괄호 쌍 맞추기 방식으로 풀자
+// 태그랑 콘텐츠 가리키는 포인터
+// 태그 없는 애는 바로 result = []에 push
+// 오픈태그 -> 닫는 태그 만날 때까지 스택 푸쉬
+// 닫는태그 만나면 오픈태그까지 팝 -> // temp 리스트에 {"태그":"콘텐츠"}로 푸쉬
+//
+
+function htmlToJson02(str) {
+  return JSON.stringify(result);
+}
+
+
+console.log(htmlToJson02(sample));

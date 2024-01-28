@@ -128,11 +128,11 @@ sample: ["front",{"p":"blahblah"},{"p":["something",{"u":"here"},"hello"]},"back
 스택의 길이 체크, 1이면 pop해서 result에 넣어주기 - ✅
   result에 넣어줄때, key의 []의 길이가 1이고 요소의 타입이 obj가 아니면 꺼내서 {태그:콘텐츠} 넣어주기 -> 📍 함수화
 콘텐츠 처리
-  <이 아니면 다음 <를 찾아서 슬라이스 해서 스택에 푸쉬하는데
-  스택의 길이가 0이면, result에 푸쉬, 
-  스택의 길이가 0이 아니면
-    스택 pop한 것의 key의 []에 넣어주고
-    다시 push해주기
+  <이 아니면 다음 <를 찾아서 슬라이스 해서 스택에 푸쉬하는데  - ✅
+  스택의 길이가 0이면, result에 푸쉬,  - ✅
+  스택의 길이가 0이 아니면  - ✅
+    스택 pop한 것의 key의 []에 넣어주고  - ✅
+    다시 push해주기  - ✅
 
 *idx 더해주는 거 조금 신경써야 할 듯
 
@@ -151,7 +151,9 @@ function htmlToJson02(str) {
       let tagName = str.slice(idx + 1, tagEndIdx);
       obj[tagName] = [];
       stack.push(obj);
+      idx = tagEndIdx + 1;
     } else if (str[idx] === "<" && str[idx + 1] === "/") {
+      let tagEndIdx = str.indexOf(">", idx);
       // close tag
       // 스택 길이 체크. 2 이상이면 pop해서 stack.length-1인덱스의 키에 push
       if (stack.length > 1) {
@@ -161,11 +163,23 @@ function htmlToJson02(str) {
       } else {
         // 스택에 딱 하나만 있어
         let temp = stack.pop();
-        result.push(temp);
+        result.push(temp); // 📍
       }
+      idx = tagEndIdx + 1;
     } else {
       // content
+      let contentEndIdx = str.indexOf("<", idx);
+      let content = str.slice(idx, contentEndIdx);
 
+      if (stack.length === 0){
+        result.push(content)
+      } else {
+        let temp = stack.pop();
+        let key = Object.keys(temp)[0];
+        temp[key].push(content)
+        stack.push(temp);
+      }
+      idx = contentEndIdx + 1;
     }
   }
 

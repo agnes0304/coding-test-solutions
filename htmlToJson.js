@@ -119,48 +119,52 @@ sample: ["front",{"p":"blahblah"},{"p":["something",{"u":"here"},"hello"]},"back
 //
 
 /*
-<인지 아닌지 검증해나가는 과정이 필요하고. 
-<내부에 <가 있으면 idx를 <로 설정하고 안쪽 반복문 break하기
-그럼 다시 <인지 아닌지 검증하겠지.
-</위치를 찾아야 하나 말아야 하나 -> 내부 for loop에서 str.length가 아니라 </>까지만 찾고
-</>오면 temp에 있는거 옮겨주는 역할하면 됨. 
+다시.
+<tag>, content, </tag>
+스택을 쓸건데, 
+{태그:[]}이 형태로 스택에 푸쉬
+오픈 태그 만나면 일단 스택에 {태그:[]} 푸쉬 - ✅
+닫는 태그를 만나면 스택의 길이 체크. 2이상이면 pop해서 스택 길이-1인덱스의 키에 push 
+스택의 길이 체크, 1이면 pop해서 result에 넣어주기
+  result에 넣어줄때, key의 []의 길이가 1이고 요소의 타입이 obj가 아니면 꺼내서 {태그:콘텐츠} 넣어주기
+콘텐츠처리
+  <이 아니면 다음 <를 찾아서 슬라이스 해서 스택에 푸쉬하는데
+  스택의 길이가 0이면, result에 푸쉬, 
+  스택의 길이가 0이 아니면
+    스택 pop한 것의 key의 []에 넣어주고
+    다시 push해주기
+
+*idx 더해주는 거 조금 신경써야 할 듯
 
 */
 
 function htmlToJson02(str) {
   const result = [];
-  let idx = 0; // index
-  let closeIdx = str.length;
   const stack = [];
-  const temp = [];
+  const idx = 0;
 
-  if (str[idx] === "<") {
-    let endTagidx = str.indexOf(">", idx);
-    let tagName = str.slice(idx + 1, endTagidx);
-    stack.push(tagName);
-
-    let closeTag = `</${tagName}>`;
-    let closeTagIdx = str.lastIndexOf(closeTag, closeIdx); // 중첩된 태그가 같은 경우면 우짜냐? -> 일단 lastIndexOf
-
-    for (let i = endTagidx + 1; i < closeTagIdx; i++) {
-      // 콘텐츠 자르는 중
-      if (str[i] === "<") {
-        idx = i;
-        closeIdx = closeTagIdx;
-        let content = str.slice(endTagidx + 1, i);
-        stack.push(content);
-        break;
-      } else if (i === closeTagIdx - 1) {
-        let obj = {};
-        let content = str.slice(endTagidx + 1, i);
-        if (stack.length === 1) {
-          let key = stack.pop();
-          obj[key] = content;
-          result.push(obj);
-        } else {
-          
-        }
+  while (idx < str.length) {
+    if (str[idx] === "<" && str[idx + 1] !== "/") {
+      // open tag
+      let obj = {};
+      let tagEndIdx = str.indexOf(">", idx);
+      let tagName = str.slice(idx + 1, tagEndIdx);
+      obj[tagName] = [];
+      stack.push(obj);
+    } else if (str[idx] === "<" && str[idx + 1] === "/") {
+      // close tag
+      // 스택 길이 체크. 2 이상이면 pop해서 stack.length-1인덱스의 키에 push
+      if (stack.length > 1) {
+        let temp = stack.pop();
+        let key = Object.keys(stack[0])[0];
+        stack[0][key].push(temp);
+      } else {
+        // 스택에 딱 하나만 있어
+        let temp = stack.pop();
+        result.push(temp);
       }
+    } else {
+      // content
     }
   }
 

@@ -30,6 +30,16 @@ function htmlToJson(str) {
   const result = [];
   let idx = 0;
 
+  // indexOf 대체해봄.
+  function findCharIndex(char, startIndex){
+    for(let i = startIndex; i<str.length; i++){
+      if(str[i] === char){
+        return i
+      }
+      return -1
+    }
+  }
+
   // <로 시작하는 태그 파싱 함수 만들고 재귀로 처리
 
   function parseTag() {
@@ -38,12 +48,12 @@ function htmlToJson(str) {
       return null;
     }
 
-    const tagCloseIdx = str.indexOf(">", idx);
+    const tagCloseIdx = findCharIndex(">", idx);
     const tagName = str.slice(idx + 1, tagCloseIdx);
     idx = tagCloseIdx + 1;
 
     const closeTag = `</${tagName}>`;
-    const closeTagIdx = str.indexOf(closeTag, idx);
+    const closeTagIdx = findCharIndex(closeTag, idx);
 
     const content = [];
     let contentStr = "";
@@ -79,7 +89,7 @@ function htmlToJson(str) {
     if (str[idx] === "<") {
       result.push(parseTag());
     } else {
-      let textEndIdx = str.indexOf("<", idx);
+      let textEndIdx = findCharIndex("<", idx);
       if (textEndIdx === -1) textEndIdx = str.length;
       result.push(str.slice(idx, textEndIdx));
       idx = textEndIdx;
@@ -89,4 +99,4 @@ function htmlToJson(str) {
   return JSON.stringify(result);
 }
 
-// console.log(htmlToJson(str));
+console.log(htmlToJson(str));

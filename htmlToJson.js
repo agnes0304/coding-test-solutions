@@ -135,107 +135,70 @@ sample: ["front",{"p":"blahblah"},{"p":["something",{"u":"here"},"hello"]},"back
     다시 push해주기  - ✅
 
 *idx 더해주는 거 조금 신경써야 할 듯
-
 */
 
 // result에 넣어줄때, key의 []의 길이가 1이고 요소의 타입이 obj가 아니면 꺼내서 {태그:콘텐츠} 넣어주기
-
-// function htmlToJson02(str) {
-//   const result = [];
-//   const stack = [];
-//   let idx = 0;
-
-//   while (idx < str.length) {
-//     if (str[idx] === "<" && str[idx + 1] !== "/") {
-//       let obj = {};
-//       let tagEndIdx = str.indexOf(">", idx);
-//       let tagName = str.slice(idx + 1, tagEndIdx);
-//       obj[tagName] = [];
-//       stack.push(obj);
-//       idx = tagEndIdx + 1;
-//     } else if (str[idx] === "<" && str[idx + 1] === "/") {
-//       let tagEndIdx = str.indexOf(">", idx);
-//       // 스택 길이 체크. 2 이상이면 pop해서 stack.length-1 인덱스의 키에 push
-
-//       let poppedTag = stack.pop();
-//       if (stack.length === 0) {
-//         result.push(poppedTag);
-//       } else {
-//         let parentTag = stack[stack.length - 1];
-//         let parentTagName = Object.keys(parentTag)[0];
-//         parentTag[parentTagName].push(poppedTag);
-//       }
-//       idx = tagEndIdx + 1;
-//     } else {
-//       let contentEndIdx = str.indexOf("<", idx);
-//       if (contentEndIdx === -1) contentEndIdx = str.length;
-//       let content = str.slice(idx, contentEndIdx);
-
-//       if (stack.length > 0) {
-//         let currentTag = stack[stack.length - 1];
-//         let currentTagName = Object.keys(currentTag)[0];
-//         currentTag[currentTagName].push(content);
-//       } else {
-//         result.push(content);
-//       }
-
-//       idx = contentEndIdx + 1;
-//     }
-//   }
-
-//   return JSON.stringify(result);
-// }
-
 
 function htmlToJson02(str) {
   const result = [];
   const stack = [];
   let idx = 0;
 
+  function pushResult(obj) {
+    // result에 넣어줄때, key의 []의 길이가 1이고 요소의 타입이 obj가 아니면 꺼내서 {태그:콘텐츠} 넣어주기
+    let key = Object.keys(obj)[0];
+    let temp = {};
+    if (obj[key].length === 1) {
+      temp[key] = obj[key][0];
+      result.push(temp);
+    } else {
+      result.push(obj);
+    }
+  }
+  // ["front",{"p":"blahblah"},{"p":["something",{"u":["here"]},"hello"]},"back"]
+  // 안에 꺼 못 뺐음
+
+
   while (idx < str.length) {
     if (str[idx] === "<") {
-      // Check if it's a closing tag
-      if (str[idx + 1] === "/") {
-        let tagEndIdx = str.indexOf(">", idx);
-        let poppedTag = stack.pop();
-        if (stack.length === 0) {
-          result.push(poppedTag);
-        } else {
-          let parentTag = stack[stack.length - 1];
-          let parentTagName = Object.keys(parentTag)[0];
-          parentTag[parentTagName].push(poppedTag);
-        }
-
-        idx = tagEndIdx + 1;
-      } else {
-        // Opening tag
+      if (str[idx + 1] !== "/") {
+        let obj = {};
         let tagEndIdx = str.indexOf(">", idx);
         let tagName = str.slice(idx + 1, tagEndIdx);
-        let obj = {};
         obj[tagName] = [];
         stack.push(obj);
         idx = tagEndIdx + 1;
+      } else {
+        let tagEndIdx = str.indexOf(">", idx);
+        let poppedTag = stack.pop();
+        if (stack.length === 0) {
+          // result.push(poppedTag);
+          pushResult(poppedTag);
+        } else {
+          let outerTag = stack[stack.length - 1];
+          let outerTagName = Object.keys(outerTag)[0];
+          outerTag[outerTagName].push(poppedTag);
+        }
+        idx = tagEndIdx + 1;
       }
     } else {
-      // Text content
-      let contentEndIdx = str.indexOf("<", idx);
-      if (contentEndIdx === -1) contentEndIdx = str.length;
-      let content = str.slice(idx, contentEndIdx).trim();
-      if (content) {
-        if (stack.length > 0) {
-          let currentTag = stack[stack.length - 1];
-          let currentTagName = Object.keys(currentTag)[0];
-          currentTag[currentTagName].push(content);
-        } else {
-          result.push(content);
-        }
+      let newTagIdx = str.indexOf("<", idx);
+      if (newTagIdx === -1) newTagIdx = str.length;
+      let content = str.slice(idx, newTagIdx);
+
+      if (stack.length > 0) {
+        let currentTag = stack[stack.length - 1];
+        let currentTagName = Object.keys(currentTag)[0];
+        currentTag[currentTagName].push(content);
+      } else {
+        result.push(content);
       }
-      idx = contentEndIdx;
+
+      idx = newTagIdx; // 이름의 중요성: contentTagIdx에서 newTagIdx로 변경 (얘를 +1을 해버리니까 다 꼬여버렸네)
     }
   }
 
   return JSON.stringify(result);
 }
-
 
 console.log(htmlToJson02(sample));

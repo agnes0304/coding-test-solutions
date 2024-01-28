@@ -1,6 +1,9 @@
+# 상권 문제
+# N*N(2<=N<=500) 2차원 배열에서 K*K(1<=K<=2/N, 자연수) 상권을 가짐. 두 상권이 겹치지 않는 최대값
+# prefix sum
+
 import random
 import timeit
-
 
 def solution(grid, K):
     N = len(grid)

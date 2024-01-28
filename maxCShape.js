@@ -1,4 +1,6 @@
-function solution(arr) {
+// 배열 3등분, 합이 같은 가짓수
+
+function threeSum(arr) {
   if (arr.length <= 2) {
     return 0;
   }
@@ -41,7 +43,7 @@ function solution(arr) {
 function findWidestCShape(cells) {
   let maxWidth = 0;
 
-  // 바깥 이중 for문: cells을 반복합니다. C 모양 시작점(startRow, startCol)을 정의.
+  // 바깥 이중 for문: cells을 반복. C 모양 시작점(startRow, startCol)을 정의.
 
   for (let startRow = 0; startRow < cells.length; startRow++) {
     for (let startCol = 0; startCol < cells[startRow].length; startCol++) {

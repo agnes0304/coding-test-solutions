@@ -139,15 +139,15 @@ function htmlToJson02(str) {
   const stack = [];
   let idx = 0;
 
-  function pushResult(obj) {
+  function pushResult(arr, obj) {
     // result에 넣어줄때, key의 []의 길이가 1이고 요소의 타입이 obj가 아니면 꺼내서 {태그:콘텐츠} 넣어주기
     let key = Object.keys(obj)[0];
     let temp = {};
     if (obj[key].length === 1) {
       temp[key] = obj[key][0];
-      result.push(temp);
+      arr.push(temp);
     } else {
-      result.push(obj);
+      arr.push(obj);
     }
   }
   // ["front",{"p":"blahblah"},{"p":["something",{"u":["here"]},"hello"]},"back"]
@@ -167,11 +167,12 @@ function htmlToJson02(str) {
         let poppedTag = stack.pop();
         if (stack.length === 0) {
           // result.push(poppedTag);
-          pushResult(poppedTag);
+          pushResult(result, poppedTag);
         } else {
           let outerTag = stack[stack.length - 1];
           let outerTagName = Object.keys(outerTag)[0];
-          outerTag[outerTagName].push(poppedTag);
+          // outerTag[outerTagName].push(poppedTag);
+          pushResult(outerTag[outerTagName], poppedTag);
         }
         idx = tagEndIdx + 1;
       }

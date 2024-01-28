@@ -1,6 +1,18 @@
-// HTML DOM object traversing: DFS
+// HTML STRING TO JSON
 
 /*
+INPUT: html string
+sample: "front<p>blahblah</p><p>something<u>here</u>hello</p>back"
+
+OUTPUT: json object
+sample: ["front",{"p":"blahblah"},{"p":["something",{"u":"here"},"hello"]},"back"]
+*/
+const str = "front<p>blahblah</p><p>something<u>here</u>hello</p>back";
+
+// 💡 001. USING RECURSION
+
+/*
+HTML DOM object traversing: DFS
 parseTag가 DFS 방식을 적용한 것
 <가 발견되면 새 태그가 시작됨(=트리에서 새 브랜치가 발견)
 새 태그 처리 위해 스스로 호출(parseTag)
@@ -10,20 +22,10 @@ parseTag 외부 나머지는 단순히 문자열을 반복하고 태그가 발�
 이는 HTML 문자열의 각 root-level 태그에 대해 새로운 traverse를 시작하는 것.
 */
 
-const str = "front<p>blahblah</p><p>something<u>here</u>hello</p>back";
-/*
-INPUT: html string
-sample: "front<p>blahblah</p><p>something<u>here</u>hello</p>back"
-
-OUTPUT: json object
-sample: ["front",{"p":"blahblah"},{"p":["something",{"u":"here"},"hello"]},"back"]
-*/
-
 // 중첩된 거 풀려면 재귀 필요 -> 근데 스택 오버플로 가능성
 // []에 담겨야 함.
 // <로 시작하는 문자열 처리하는 케이스
 // base: < 로 시작하지 않을 경우
-
 // 포인터로 해야 할듯?
 
 function htmlToJson(str) {
@@ -101,15 +103,8 @@ function htmlToJson(str) {
 
 // console.log(htmlToJson(str));
 
-// using stack
-const sample = "front<p>blahblah</p><p>something<u>here</u>hello</p>back";
-/*
-INPUT: html string
-sample: "front<p>blahblah</p><p>something<u>here</u>hello</p>back"
 
-OUTPUT: json object
-sample: ["front",{"p":"blahblah"},{"p":["something",{"u":"here"},"hello"]},"back"]
-*/
+// 💡 002. USING STACK
 
 // 괄호 쌍 맞추기 방식으로 풀자
 // 태그랑 콘텐츠 가리키는 포인터
@@ -126,7 +121,7 @@ sample: ["front",{"p":"blahblah"},{"p":["something",{"u":"here"},"hello"]},"back
 오픈 태그 만나면 일단 스택에 {태그:[]} 푸쉬 - ✅
 닫는 태그를 만나면 스택의 길이 체크. 2이상이면 pop해서 스택 길이-1인덱스의 키에 push  - ✅
 스택의 길이 체크, 1이면 pop해서 result에 넣어주기 - ✅
-  result에 넣어줄때, key의 []의 길이가 1이고 요소의 타입이 obj가 아니면 꺼내서 {태그:콘텐츠} 넣어주기 -> 📍 함수화
+  result에 넣어줄때, key의 []의 길이가 1이고 요소의 타입이 obj가 아니면 꺼내서 {태그:콘텐츠} 넣어주기 -> 📍 함수화 ongoing
 콘텐츠 처리
   <이 아니면 다음 <를 찾아서 슬라이스 해서 스택에 푸쉬하는데 - ✅
   스택의 길이가 0이면, result에 푸쉬,  - ✅
@@ -157,7 +152,6 @@ function htmlToJson02(str) {
   }
   // ["front",{"p":"blahblah"},{"p":["something",{"u":["here"]},"hello"]},"back"]
   // 안에 꺼 못 뺐음
-
 
   while (idx < str.length) {
     if (str[idx] === "<") {
@@ -201,4 +195,4 @@ function htmlToJson02(str) {
   return JSON.stringify(result);
 }
 
-console.log(htmlToJson02(sample));
+console.log(htmlToJson02(str));

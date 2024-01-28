@@ -140,50 +140,102 @@ sample: ["front",{"p":"blahblah"},{"p":["something",{"u":"here"},"hello"]},"back
 
 // result에 넣어줄때, key의 []의 길이가 1이고 요소의 타입이 obj가 아니면 꺼내서 {태그:콘텐츠} 넣어주기
 
+// function htmlToJson02(str) {
+//   const result = [];
+//   const stack = [];
+//   let idx = 0;
+
+//   while (idx < str.length) {
+//     if (str[idx] === "<" && str[idx + 1] !== "/") {
+//       let obj = {};
+//       let tagEndIdx = str.indexOf(">", idx);
+//       let tagName = str.slice(idx + 1, tagEndIdx);
+//       obj[tagName] = [];
+//       stack.push(obj);
+//       idx = tagEndIdx + 1;
+//     } else if (str[idx] === "<" && str[idx + 1] === "/") {
+//       let tagEndIdx = str.indexOf(">", idx);
+//       // 스택 길이 체크. 2 이상이면 pop해서 stack.length-1 인덱스의 키에 push
+
+//       let poppedTag = stack.pop();
+//       if (stack.length === 0) {
+//         result.push(poppedTag);
+//       } else {
+//         let parentTag = stack[stack.length - 1];
+//         let parentTagName = Object.keys(parentTag)[0];
+//         parentTag[parentTagName].push(poppedTag);
+//       }
+//       idx = tagEndIdx + 1;
+//     } else {
+//       let contentEndIdx = str.indexOf("<", idx);
+//       if (contentEndIdx === -1) contentEndIdx = str.length;
+//       let content = str.slice(idx, contentEndIdx);
+
+//       if (stack.length > 0) {
+//         let currentTag = stack[stack.length - 1];
+//         let currentTagName = Object.keys(currentTag)[0];
+//         currentTag[currentTagName].push(content);
+//       } else {
+//         result.push(content);
+//       }
+
+//       idx = contentEndIdx + 1;
+//     }
+//   }
+
+//   return JSON.stringify(result);
+// }
+
+
 function htmlToJson02(str) {
   const result = [];
   const stack = [];
   let idx = 0;
 
   while (idx < str.length) {
-    if (str[idx] === "<" && str[idx + 1] !== "/") {
-      let obj = {};
-      let tagEndIdx = str.indexOf(">", idx);
-      let tagName = str.slice(idx + 1, tagEndIdx);
-      obj[tagName] = [];
-      stack.push(obj);
-      idx = tagEndIdx + 1;
-    } else if (str[idx] === "<" && str[idx + 1] === "/") {
-      let tagEndIdx = str.indexOf(">", idx);
-      // 스택 길이 체크. 2 이상이면 pop해서 stack.length-1 인덱스의 키에 push
+    if (str[idx] === "<") {
+      // Check if it's a closing tag
+      if (str[idx + 1] === "/") {
+        let tagEndIdx = str.indexOf(">", idx);
+        let poppedTag = stack.pop();
+        if (stack.length === 0) {
+          result.push(poppedTag);
+        } else {
+          let parentTag = stack[stack.length - 1];
+          let parentTagName = Object.keys(parentTag)[0];
+          parentTag[parentTagName].push(poppedTag);
+        }
 
-      let poppedTag = stack.pop();
-      if (stack.length === 0) {
-        result.push(poppedTag);
+        idx = tagEndIdx + 1;
       } else {
-        let parentTag = stack[stack.length - 1];
-        let parentTagName = Object.keys(parentTag)[0];
-        parentTag[parentTagName].push(poppedTag);
+        // Opening tag
+        let tagEndIdx = str.indexOf(">", idx);
+        let tagName = str.slice(idx + 1, tagEndIdx);
+        let obj = {};
+        obj[tagName] = [];
+        stack.push(obj);
+        idx = tagEndIdx + 1;
       }
-      idx = tagEndIdx + 1;
     } else {
+      // Text content
       let contentEndIdx = str.indexOf("<", idx);
       if (contentEndIdx === -1) contentEndIdx = str.length;
-      let content = str.slice(idx, contentEndIdx);
-
-      if (stack.length > 0) {
-        let currentTag = stack[stack.length - 1];
-        let currentTagName = Object.keys(currentTag)[0];
-        currentTag[currentTagName].push(content);
-      } else {
-        result.push(content);
+      let content = str.slice(idx, contentEndIdx).trim();
+      if (content) {
+        if (stack.length > 0) {
+          let currentTag = stack[stack.length - 1];
+          let currentTagName = Object.keys(currentTag)[0];
+          currentTag[currentTagName].push(content);
+        } else {
+          result.push(content);
+        }
       }
-
-      idx = contentEndIdx + 1;
+      idx = contentEndIdx;
     }
   }
 
   return JSON.stringify(result);
 }
+
 
 console.log(htmlToJson02(sample));

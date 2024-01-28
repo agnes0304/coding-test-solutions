@@ -118,9 +118,53 @@ sample: ["front",{"p":"blahblah"},{"p":["something",{"u":"here"},"hello"]},"back
 // 닫는태그 만나면 오픈태그까지 팝 -> // temp 리스트에 {"태그":"콘텐츠"}로 푸쉬
 //
 
+/*
+<인지 아닌지 검증해나가는 과정이 필요하고. 
+<내부에 <가 있으면 idx를 <로 설정하고 안쪽 반복문 break하기
+그럼 다시 <인지 아닌지 검증하겠지.
+</위치를 찾아야 하나 말아야 하나 -> 내부 for loop에서 str.length가 아니라 </>까지만 찾고
+</>오면 temp에 있는거 옮겨주는 역할하면 됨. 
+
+*/
+
 function htmlToJson02(str) {
+  const result = [];
+  let idx = 0; // index
+  let closeIdx = str.length;
+  const stack = [];
+  const temp = [];
+
+  if (str[idx] === "<") {
+    let endTagidx = str.indexOf(">", idx);
+    let tagName = str.slice(idx + 1, endTagidx);
+    stack.push(tagName);
+
+    let closeTag = `</${tagName}>`;
+    let closeTagIdx = str.lastIndexOf(closeTag, closeIdx); // 중첩된 태그가 같은 경우면 우짜냐? -> 일단 lastIndexOf
+
+    for (let i = endTagidx + 1; i < closeTagIdx; i++) {
+      // 콘텐츠 자르는 중
+      if (str[i] === "<") {
+        idx = i;
+        closeIdx = closeTagIdx;
+        let content = str.slice(endTagidx + 1, i);
+        stack.push(content);
+        break;
+      } else if (i === closeTagIdx - 1) {
+        let obj = {};
+        let content = str.slice(endTagidx + 1, i);
+        if (stack.length === 1) {
+          let key = stack.pop();
+          obj[key] = content;
+          result.push(obj);
+        } else {
+          
+        }
+      }
+    }
+  }
+
   return JSON.stringify(result);
 }
-
 
 console.log(htmlToJson02(sample));
